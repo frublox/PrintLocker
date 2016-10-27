@@ -19,7 +19,7 @@ namespace PrintLocker
             byte[] passwordHash = null;
             List<string> queuesToBlock = null;
 
-            if (!File.Exists(Prefs.HashLocationFilepath) || File.ReadAllLines(Prefs.HashLocationFilepath).Length == 0)
+            if (fileMissingOrEmpty(Prefs.HashLocationFilepath))
             {
                 const string msg = "No location for the password file has been set. Set one using the setup program.";
                 const string caption = "Missing Password Location";
@@ -30,21 +30,21 @@ namespace PrintLocker
 
             Prefs.HashFilepath = File.ReadAllText(Prefs.HashLocationFilepath);
 
-            if (!File.Exists(Prefs.LogFilepath))
+            if (fileMissingOrEmpty(Prefs.LogFilepath))
             {
                 const string msg = "A log file has not been created. One will automatically be created when the setup program is run.";
                 const string caption = "Missing Log File";
 
                 MessageBox.Show(msg, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else if (!File.Exists(Prefs.HashFilepath) || File.ReadAllBytes(Prefs.HashFilepath).Length == 0)
+            else if (fileMissingOrEmpty(Prefs.HashFilepath))
             {
                 const string msg = "No password has been set. Set one using the setup program.";
                 const string caption = "Missing Password";
 
                 MessageBox.Show(msg, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else if (!File.Exists(Prefs.ConfigFilepath) || File.ReadAllLines(Prefs.ConfigFilepath).Length == 0)
+            else if (fileMissingOrEmpty(Prefs.ConfigFilepath))
             {
                 const string msg = "No printers have been configured to be blocked. Set at least one using the setup program.";
                 const string caption = "Missing Configuration";
@@ -57,6 +57,11 @@ namespace PrintLocker
                 queuesToBlock = new List<string>(File.ReadAllLines(Prefs.ConfigFilepath));
                 Application.Run(new PrintLockerForm(passwordHash, queuesToBlock));
             }
+        }
+
+        private static bool fileMissingOrEmpty(string path)
+        {
+            return !File.Exists(path) || File.ReadAllBytes(path).Length == 0;
         }
     }
 }
