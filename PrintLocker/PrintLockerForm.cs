@@ -13,7 +13,7 @@ namespace PrintLocker
 {
     public partial class PrintLockerForm : Form
     {
-        bool printingEnabled = false;
+        bool printingDisabled = true;
         List<string> queuesToBlock;
 
         byte[] passwordHash;
@@ -60,7 +60,7 @@ namespace PrintLocker
 
         private void enablePrinting()
         {
-            printingEnabled = true;
+            printingDisabled = false;
 
             labelStatus.ForeColor = Color.Green;
             labelStatus.Text = "Successfully enabled printing.";
@@ -75,7 +75,7 @@ namespace PrintLocker
 
         private void disablePrinting()
         {
-            printingEnabled = false;
+            printingDisabled = true;
 
             labelStatus.ForeColor = Color.Red;
 
@@ -120,7 +120,7 @@ namespace PrintLocker
 
                     logJob(job.JobIdentifier, job.NumberOfPages, job.TimeJobSubmitted, job.Submitter);
 
-                    if (!printingEnabled && !job.IsPaused && job.Submitter.Equals(Environment.UserName))
+                    if (printingDisabled && !job.IsPaused && job.Submitter.Equals(Environment.UserName))
                     {
                         showWindow();
                         job.Pause();
