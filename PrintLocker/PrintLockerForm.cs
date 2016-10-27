@@ -17,7 +17,7 @@ namespace PrintLocker
         List<string> queuesToBlock;
 
         byte[] passwordHash;
-        SHA256 mySHA256;
+        SHA256 mySHA256 = SHA256.Create();
 
         private Thread jobMonitor;
         delegate void ShowCallback();
@@ -30,8 +30,6 @@ namespace PrintLocker
 
             this.passwordHash = passwordHash;
             this.queuesToBlock = queuesToBlock;
-
-            mySHA256 = SHA256.Create();
 
             jobMonitor = new Thread(new ThreadStart(monitorQueues));
             jobMonitor.Start();
@@ -122,7 +120,7 @@ namespace PrintLocker
 
                     if (printingDisabled && !job.IsPaused && job.Submitter.Equals(Environment.UserName))
                     {
-                        showWindow();
+                        // showWindow();
                         job.Pause();
                         job.Refresh();
                     }
