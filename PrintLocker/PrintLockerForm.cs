@@ -16,7 +16,7 @@ namespace PrintLocker
 
             notifyIcon.Icon = SystemIcons.Application;
 
-            printLocker = new PrintLocker(passwordHash, queuesToBlock);
+            printLocker = new PrintLocker(passwordHash, queuesToBlock, this);
         }
 
         private void disableInput()
@@ -68,7 +68,7 @@ namespace PrintLocker
             labelStatus.Text = "Printing has been re-locked.";
         }
 
-        private void showWindow()
+        public void showWindow()
         {
             if (InvokeRequired)
             {
@@ -108,15 +108,9 @@ namespace PrintLocker
             WindowState = FormWindowState.Normal;
         }
 
-
         private void buttonSubmit_Click(object sender, EventArgs e)
         {
             checkPassword();
-        }
-
-        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            printLocker.Quit();
         }
 
         private void buttonLock_Click(object sender, EventArgs e)

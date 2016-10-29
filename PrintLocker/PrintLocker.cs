@@ -13,20 +13,24 @@ namespace PrintLocker
     {
         public bool PrintingDisabled { get; set; }
 
+        private PrintLockerForm form;
+
         private List<string> queuesToBlock;
         private byte[] passwordHash;
 
         private Thread jobMonitor;
         private SHA256 mySHA256 = SHA256.Create();
 
-        public PrintLocker(byte[] passwordHash, List<string> queuesToBlock)
+        public PrintLocker(byte[] passwordHash, List<string> queuesToBlock, PrintLockerForm form)
         {
+            this.form = form;
             this.passwordHash = passwordHash;
             this.queuesToBlock = queuesToBlock;
 
             PrintingDisabled = true;
 
             jobMonitor = new Thread(new ThreadStart(monitorQueues));
+            jobMonitor.IsBackground = true;
             jobMonitor.Start();
         }
 
@@ -35,16 +39,6 @@ namespace PrintLocker
             byte[] inputPasswordHash = computeHash(password);
 
             return passwordHash.SequenceEqual(inputPasswordHash);
-        }
-
-        /// <summary>
-        /// Stops monitoring printer queues. 
-        /// 
-        /// Should be called before application ends, in order to properly terminate the job-monitoring thread.
-        /// </summary>
-        public void Quit()
-        {
-            jobMonitor.Abort();
         }
 
         /// <summary>
