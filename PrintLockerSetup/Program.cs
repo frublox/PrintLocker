@@ -16,7 +16,7 @@ namespace PrintLockerSetup
         [STAThread]
         static void Main()
         {
-            if (fileMissingOrEmpty(Prefs.ConfigFilepath))
+            if (fileMissing(Prefs.ConfigFilepath))
             {
                 File.WriteAllText(Prefs.ConfigFilepath, "");
             }
@@ -28,7 +28,7 @@ namespace PrintLockerSetup
 
             Prefs.HashFilepath = File.ReadAllText(Prefs.HashLocationFilepath);
 
-            if (fileMissingOrEmpty(Prefs.LogFilepath))
+            if (fileMissing(Prefs.LogFilepath))
             {
                 File.WriteAllText(Prefs.LogFilepath, "");
             }
@@ -38,6 +38,11 @@ namespace PrintLockerSetup
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new PrintLockerSetupForm());
+        }
+
+        private static bool fileMissing(string path)
+        {
+            return !File.Exists(path);
         }
 
         private static bool fileMissingOrEmpty(string path)
