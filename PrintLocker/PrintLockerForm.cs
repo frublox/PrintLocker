@@ -1,25 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.Security.Cryptography;
-using System.Printing;
-using System.Threading;
-using System.IO;
 
 namespace PrintLocker
 {
     public partial class PrintLockerForm : Form
     {
-        bool printingDisabled = true;
-        List<string> queuesToBlock;
-
-        byte[] passwordHash;
-        SHA256 mySHA256 = SHA256.Create();
-
-        private Thread jobMonitor;
+        private PrintLocker printLocker;
         delegate void ShowCallback();
 
         public PrintLockerForm(byte[] passwordHash, List<string> queuesToBlock)
@@ -28,18 +16,7 @@ namespace PrintLocker
 
             notifyIcon.Icon = SystemIcons.Application;
 
-            this.passwordHash = passwordHash;
-            this.queuesToBlock = queuesToBlock;
-
-            jobMonitor = new Thread(new ThreadStart(monitorQueues));
-            jobMonitor.Start();
-        }
-
-        private byte[] computeHash(string password)
-        {
-            byte[] bytes = Encoding.ASCII.GetBytes(password);
-
-            return mySHA256.ComputeHash(bytes);
+            printLocker = new PrintLocker(passwordHash, queuesToBlock);
         }
 
         private void disableInput()
@@ -58,7 +35,7 @@ namespace PrintLocker
 
         private void enablePrinting()
         {
-            printingDisabled = false;
+            printLocker.PrintingDisabled = false;
 
             labelStatus.ForeColor = Color.Green;
             labelStatus.Text = "Successfully enabled printing.";
@@ -73,7 +50,7 @@ namespace PrintLocker
 
         private void disablePrinting()
         {
-            printingDisabled = true;
+            printLocker.PrintingDisabled = true;
 
             labelStatus.ForeColor = Color.Red;
 
@@ -91,53 +68,6 @@ namespace PrintLocker
             labelStatus.Text = "Printing has been re-locked.";
         }
 
-        private void monitorQueues()
-        {
-            LocalPrintServer server = new LocalPrintServer();
-
-            while (true)
-            {
-                pauseJobs(server);
-
-                Thread.Sleep(2000);
-            }
-        }
-
-        private void pauseJobs(LocalPrintServer server)
-        {
-            PrintQueue queue;
-
-            foreach (string queueName in queuesToBlock)
-            {
-                queue = new PrintQueue(server, queueName);
-                queue.Refresh();
-                   
-                foreach (PrintSystemJobInfo job in queue.GetPrintJobInfoCollection())
-                {
-                    job.Refresh();
-
-                    logJob(job.JobIdentifier, job.NumberOfPages, job.TimeJobSubmitted, job.Submitter);
-
-                    if (printingDisabled && !job.IsPaused && job.Submitter.Equals(Environment.UserName))
-                    {
-                        // showWindow();
-                        job.Pause();
-                        job.Refresh();
-                    }
-                }
-            }
-        }
-
-        private void logJob(int jobId, int numPages, DateTime timestamp, string user)
-        {
-            if (!File.ReadAllLines(Prefs.LogFilepath).Contains("Job ID " + jobId.ToString()))
-            {
-                string logLine = timestamp.ToLongTimeString() +
-                    ", Job ID " + jobId.ToString() + ", User: " + user + ", " + numPages.ToString() + " pages\n";
-                File.AppendAllText(Prefs.LogFilepath, logLine);
-            }
-        }
-
         private void showWindow()
         {
             if (InvokeRequired)
@@ -150,16 +80,9 @@ namespace PrintLocker
             }
         }
 
-        private void buttonSubmit_Click(object sender, EventArgs e)
-        {
-            checkPassword();
-        }
-
         private void checkPassword()
         {
-            byte[] inputPasswordHash = computeHash(inputPassword.Text);
-
-            if (passwordHash.SequenceEqual(inputPasswordHash))
+            if (printLocker.CheckPassword(inputPassword.Text))
             {
                 enablePrinting();
             }
@@ -185,9 +108,15 @@ namespace PrintLocker
             WindowState = FormWindowState.Normal;
         }
 
+
+        private void buttonSubmit_Click(object sender, EventArgs e)
+        {
+            checkPassword();
+        }
+
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            jobMonitor.Abort();
+            printLocker.Quit();
         }
 
         private void buttonLock_Click(object sender, EventArgs e)

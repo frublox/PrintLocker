@@ -30,12 +30,12 @@
         {
             this.label1 = new System.Windows.Forms.Label();
             this.inputPassword = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.buttonSetPassword = new System.Windows.Forms.Button();
             this.labelStatus = new System.Windows.Forms.Label();
             this.checkedListBoxQueues = new System.Windows.Forms.CheckedListBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.buttonSaveConfig = new System.Windows.Forms.Button();
+            this.buttonClearLog = new System.Windows.Forms.Button();
             this.buttonSetPassLoc = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -58,15 +58,15 @@
             this.inputPassword.TabIndex = 1;
             this.inputPassword.UseSystemPasswordChar = true;
             // 
-            // button1
+            // buttonSetPassword
             // 
-            this.button1.Location = new System.Drawing.Point(464, 12);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "Set";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.buttonSetPassword.Location = new System.Drawing.Point(464, 12);
+            this.buttonSetPassword.Name = "buttonSetPassword";
+            this.buttonSetPassword.Size = new System.Drawing.Size(75, 23);
+            this.buttonSetPassword.TabIndex = 2;
+            this.buttonSetPassword.Text = "Set";
+            this.buttonSetPassword.UseVisualStyleBackColor = true;
+            this.buttonSetPassword.Click += new System.EventHandler(this.buttonSetPassword_Click);
             // 
             // labelStatus
             // 
@@ -93,25 +93,25 @@
             this.label2.TabIndex = 5;
             this.label2.Text = "Printers to lock:";
             // 
-            // button2
+            // buttonSaveConfig
             // 
-            this.button2.Location = new System.Drawing.Point(464, 40);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 6;
-            this.button2.Text = "Save";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.buttonSaveConfig.Location = new System.Drawing.Point(464, 40);
+            this.buttonSaveConfig.Name = "buttonSaveConfig";
+            this.buttonSaveConfig.Size = new System.Drawing.Size(75, 23);
+            this.buttonSaveConfig.TabIndex = 6;
+            this.buttonSaveConfig.Text = "Save";
+            this.buttonSaveConfig.UseVisualStyleBackColor = true;
+            this.buttonSaveConfig.Click += new System.EventHandler(this.buttonSaveConfig_Click);
             // 
-            // button3
+            // buttonClearLog
             // 
-            this.button3.Location = new System.Drawing.Point(133, 149);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(103, 23);
-            this.button3.TabIndex = 7;
-            this.button3.Text = "Clear Log";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.buttonClearLog.Location = new System.Drawing.Point(133, 149);
+            this.buttonClearLog.Name = "buttonClearLog";
+            this.buttonClearLog.Size = new System.Drawing.Size(103, 23);
+            this.buttonClearLog.TabIndex = 7;
+            this.buttonClearLog.Text = "Clear Log";
+            this.buttonClearLog.UseVisualStyleBackColor = true;
+            this.buttonClearLog.Click += new System.EventHandler(this.buttonClearLog_Click);
             // 
             // buttonSetPassLoc
             // 
@@ -143,12 +143,12 @@
             this.ClientSize = new System.Drawing.Size(551, 229);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.buttonSetPassLoc);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.buttonClearLog);
+            this.Controls.Add(this.buttonSaveConfig);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.checkedListBoxQueues);
             this.Controls.Add(this.labelStatus);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.buttonSetPassword);
             this.Controls.Add(this.inputPassword);
             this.Controls.Add(this.label1);
             this.MaximizeBox = false;
@@ -165,12 +165,12 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox inputPassword;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button buttonSetPassword;
         private System.Windows.Forms.Label labelStatus;
         private System.Windows.Forms.CheckedListBox checkedListBoxQueues;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button buttonSaveConfig;
+        private System.Windows.Forms.Button buttonClearLog;
         private System.Windows.Forms.Button buttonSetPassLoc;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;

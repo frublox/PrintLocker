@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Prefs.cs" />
+    <Compile Include="PrintLocker.cs" />
     <Compile Include="PrintLockerForm.cs">
       <SubType>Form</SubType>
     </Compile>

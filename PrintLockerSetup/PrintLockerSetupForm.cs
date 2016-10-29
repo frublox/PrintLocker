@@ -15,29 +15,27 @@ namespace PrintLockerSetup
 {
     public partial class PrintLockerSetupForm : Form
     {
-        SHA256 mySHA256;
+        SHA256 mySHA256 = SHA256.Create();
 
         public PrintLockerSetupForm()
         {
             InitializeComponent();
 
-            mySHA256 = SHA256.Create();
-
             checkedListBoxQueues.Items.AddRange(getPrinterQueueNames());
             checkedListBoxQueues.CheckOnClick = true;
+            
             readConfig();
         }
 
         private string[] getPrinterQueueNames()
         {
             LocalPrintServer server = new LocalPrintServer();
-            PrintQueueCollection queues = server.GetPrintQueues();
 
             List<string> names = new List<string>();
 
-            foreach (PrintQueue pq in queues)
+            foreach (PrintQueue queue in server.GetPrintQueues())
             {
-                names.Add(pq.Name);
+                names.Add(queue.Name);
             }
 
             return names.ToArray<string>();
@@ -73,7 +71,7 @@ namespace PrintLockerSetup
             labelStatus.Text = "Successfully saved the list of printers to block.";
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void setPassword()
         {
             string password = inputPassword.Text;
             byte[] hash = mySHA256.ComputeHash(Encoding.ASCII.GetBytes(password));
@@ -104,12 +102,8 @@ namespace PrintLockerSetup
             inputPassword.Text = "";
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            saveConfig();
-        }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void clearLog()
         {
             try
             {
@@ -126,7 +120,7 @@ namespace PrintLockerSetup
                 labelStatus.ForeColor = Color.Red;
                 labelStatus.Text = "Permission denied when trying to clear the log file.";
             }
-            
+
             labelStatus.ForeColor = Color.Green;
             labelStatus.Text = "Successfully cleared the log file.";
         }
@@ -142,6 +136,21 @@ namespace PrintLockerSetup
 
             labelStatus.ForeColor = Color.Green;
             labelStatus.Text = "Password file will now be saved to: " + path;
+        }
+
+        private void buttonSetPassword_Click(object sender, EventArgs e)
+        {
+            setPassword();
+        }
+
+        private void buttonClearLog_Click(object sender, EventArgs e)
+        {
+            clearLog();
+        }
+
+        private void buttonSaveConfig_Click(object sender, EventArgs e)
+        {
+            saveConfig();
         }
     }
 }
