@@ -82,7 +82,7 @@ namespace PrintLocker
 
                     if (PrintingDisabled && !job.IsPaused && job.Submitter.Equals(Environment.UserName))
                     {
-                        // showWindow();
+                        form.RestoreFromTray();
                         job.Pause();
                         job.Refresh();
                     }

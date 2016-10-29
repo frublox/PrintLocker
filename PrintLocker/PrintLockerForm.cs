@@ -8,7 +8,7 @@ namespace PrintLocker
     public partial class PrintLockerForm : Form
     {
         private PrintLocker printLocker;
-        delegate void ShowCallback();
+        delegate void Callback();
 
         public PrintLockerForm(byte[] passwordHash, List<string> queuesToBlock)
         {
@@ -68,11 +68,11 @@ namespace PrintLocker
             labelStatus.Text = "Printing has been re-locked.";
         }
 
-        public void showWindow()
+        public void ShowWindow()
         {
             if (InvokeRequired)
             {
-                Invoke(new ShowCallback(Show));
+                Invoke(new Callback(Show));
             }
             else
             {
@@ -93,7 +93,7 @@ namespace PrintLocker
             }
         }
 
-        private void minimiseToTray()
+        public void MinimiseToTray()
         {
             WindowState = FormWindowState.Minimized;
             Hide();
@@ -102,10 +102,18 @@ namespace PrintLocker
             notifyIcon.ShowBalloonTip(3000);
         }
 
-        private void restoreFromTray()
+        public void RestoreFromTray()
         {
-            showWindow();
-            WindowState = FormWindowState.Normal;
+            ShowWindow();
+
+            if (InvokeRequired)
+            {
+                Invoke(new Callback(() => WindowState = FormWindowState.Normal));
+            }
+            else
+            {
+                WindowState = FormWindowState.Normal;
+            }
         }
 
         private void buttonSubmit_Click(object sender, EventArgs e)
@@ -122,23 +130,23 @@ namespace PrintLocker
         {
             if (WindowState == FormWindowState.Minimized)
             {
-                minimiseToTray();
+                MinimiseToTray();
             }
         }
 
         private void notifyIcon_Click(object sender, EventArgs e)
         {
-            restoreFromTray();
+            RestoreFromTray();
         }
 
         private void buttonCancel_Click(object sender, EventArgs e)
         {
-            minimiseToTray();
+            MinimiseToTray();
         }
 
         private void notifyIcon_BalloonTipClicked(object sender, EventArgs e)
         {
-            restoreFromTray();
+            RestoreFromTray();
         }
     }
 }
