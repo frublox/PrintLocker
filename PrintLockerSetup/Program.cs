@@ -50,7 +50,7 @@ namespace PrintLockerSetup
             FileSecurity fileSecurity = File.GetAccessControl(Prefs.LogFilepath);
 
             fileSecurity.AddAccessRule(new FileSystemAccessRule(
-                Environment.UserName, FileSystemRights.Write, AccessControlType.Allow));
+                "Users", FileSystemRights.Write, AccessControlType.Allow));
 
             File.SetAccessControl(Prefs.LogFilepath, fileSecurity);
         }
