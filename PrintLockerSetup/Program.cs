@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Security.AccessControl;
 
 namespace PrintLockerSetup
 {
@@ -32,6 +33,8 @@ namespace PrintLockerSetup
                 File.WriteAllText(Prefs.LogFilepath, "");
             }
 
+            makeLogFileWritable();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new PrintLockerSetupForm());
@@ -40,6 +43,16 @@ namespace PrintLockerSetup
         private static bool fileMissingOrEmpty(string path)
         {
             return !File.Exists(path) || File.ReadAllBytes(path).Length == 0;
+        }
+
+        private static void makeLogFileWritable()
+        {
+            FileSecurity fileSecurity = File.GetAccessControl(Prefs.LogFilepath);
+
+            fileSecurity.AddAccessRule(new FileSystemAccessRule(
+                Environment.UserName, FileSystemRights.Write, AccessControlType.Allow));
+
+            File.SetAccessControl(Prefs.LogFilepath, fileSecurity);
         }
     }
 }

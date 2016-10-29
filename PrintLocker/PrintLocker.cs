@@ -98,10 +98,13 @@ namespace PrintLocker
 
         private void logJob(int jobId, int numPages, DateTime timestamp, string user)
         {
-            if (!File.ReadAllLines(Prefs.LogFilepath).Contains("Job ID " + jobId.ToString()))
+            string contents = File.ReadAllText(Prefs.LogFilepath);
+
+            if (!contents.Contains("ID#: " + jobId.ToString()))
             {
-                string logLine = timestamp.ToLongTimeString() +
-                    ", Job ID " + jobId.ToString() + ", User: " + user + ", " + numPages.ToString() + " pages\n";
+                string logLine = timestamp.ToShortDateString() + " " + timestamp.ToLongTimeString() +
+                    ", ID#: " + jobId.ToString() + ", User: " + user + ", Pages: " + numPages.ToString() + "\n";
+
                 File.AppendAllText(Prefs.LogFilepath, logLine);
             }
         }
