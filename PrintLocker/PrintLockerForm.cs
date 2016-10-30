@@ -36,6 +36,7 @@ namespace PrintLocker
         private void enablePrinting()
         {
             printLocker.PrintingDisabled = false;
+            printLocker.ResumeJobs();
 
             labelStatus.ForeColor = Color.Green;
             labelStatus.Text = "Successfully enabled printing.";
@@ -147,6 +148,11 @@ namespace PrintLocker
         private void notifyIcon_BalloonTipClicked(object sender, EventArgs e)
         {
             RestoreFromTray();
+        }
+
+        private void PrintLockerForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            printLocker.ResumeJobs();
         }
     }
 }

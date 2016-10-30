@@ -11,9 +11,10 @@ namespace PrintLocker
 {
     class PrintLocker
     {
-        public bool PrintingDisabled { get; set; }
+        public bool PrintingDisabled = true;
 
         private PrintLockerForm form;
+        private LocalPrintServer server;
 
         private List<string> queuesToBlock;
         private byte[] passwordHash;
@@ -26,8 +27,6 @@ namespace PrintLocker
             this.form = form;
             this.passwordHash = passwordHash;
             this.queuesToBlock = queuesToBlock;
-
-            PrintingDisabled = true;
 
             jobMonitor = new Thread(new ThreadStart(monitorQueues));
             jobMonitor.IsBackground = true;
@@ -55,13 +54,13 @@ namespace PrintLocker
 
         private void monitorQueues()
         {
-            LocalPrintServer server = new LocalPrintServer();
+            server = new LocalPrintServer();
 
             while (true)
             {
                 pauseJobs(server);
 
-                Thread.Sleep(2000);
+                Thread.Sleep(100);
             }
         }
 
@@ -83,9 +82,37 @@ namespace PrintLocker
                     if (PrintingDisabled && !job.IsPaused && job.Submitter.Equals(Environment.UserName))
                     {
                         form.RestoreFromTray();
+
                         job.Pause();
+                        Console.WriteLine("Paused job " + job.JobIdentifier);
+                        job.Refresh();    
+                    }
+                    else if (!PrintingDisabled && job.IsPaused && job.Submitter.Equals(Environment.UserName))
+                    {
+                        form.MinimiseToTray();
+
+                        job.Resume();
+                        Console.Write("Resumed job " + job.JobIdentifier);
                         job.Refresh();
                     }
+                }
+            }
+        }
+
+        public void ResumeJobs()
+        {
+            PrintQueue queue;
+
+            foreach (string queueName in queuesToBlock)
+            {
+                queue = new PrintQueue(server, queueName);
+                queue.Refresh();
+
+                foreach (PrintSystemJobInfo job in queue.GetPrintJobInfoCollection())
+                {
+                    job.Refresh();
+                    job.Resume();
+                    job.Refresh();
                 }
             }
         }
