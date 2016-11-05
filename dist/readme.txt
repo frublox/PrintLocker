@@ -1,0 +1,3 @@
+The install script will copy files to C:\Program Files (x86)\PrintLocker. It will prompt for admin permissions in order to do that.
+
+PrintLockerSetup.exe should be run BEFORE starting PrintLocker.exe and requires admin privileges to run. You should set the password file's location (if you need it to be somewhere other than the default) and then set a password. You can then choose which printers to block printing to (at least one must be selected). Logs are saved to C:\Program Files (x86)\PrintLocker\jobs.log. There are also various other settings that be configured.
