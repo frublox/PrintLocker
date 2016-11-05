@@ -81,7 +81,7 @@ namespace PrintLocker
 
                     if (job.Submitter.Equals(Environment.UserName))
                     {
-                        if (PrintingDisabled)
+                        if (PrintingDisabled && !job.IsPaused)
                         {
                             job.Pause();
                             form.RestoreFromTray();
@@ -142,7 +142,7 @@ namespace PrintLocker
 
                     var time = job.TimeJobSubmitted;
 
-                    if (time < latestJobTime)
+                    if (time > latestJobTime)
                     {
                         latestJobTime = time;
                         latestJob = job;
