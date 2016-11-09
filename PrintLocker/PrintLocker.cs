@@ -14,7 +14,7 @@ namespace PrintLocker
         public bool PrintingDisabled = true;
 
         private PrintLockerForm form;
-        private LocalPrintServer server;
+        private LocalPrintServer printServer;
 
         private List<string> queuesToBlock;
         private byte[] passwordHash;
@@ -54,11 +54,11 @@ namespace PrintLocker
 
         private void monitorQueues()
         {
-            server = new LocalPrintServer();
+            printServer = new LocalPrintServer();
 
             while (true)
             {
-                pauseJobs(server);
+                pauseJobs(printServer);
 
                 Thread.Sleep(100);
             }
@@ -79,24 +79,65 @@ namespace PrintLocker
 
                     logJob(job.JobIdentifier, job.NumberOfPages, job.TimeJobSubmitted, job.Submitter);
 
-                    if (PrintingDisabled && !job.IsPaused && job.Submitter.Equals(Environment.UserName))
+                    if (job.Submitter.Equals(Environment.UserName))
                     {
-                        form.RestoreFromTray();
-
-                        job.Pause();
-                        Console.WriteLine("Paused job " + job.JobIdentifier);
-                        job.Refresh();    
+                        if (PrintingDisabled)
+                        {
+                            job.Pause();
+                            form.RestoreFromTray();
+                        }
+                        else
+                        {
+                            job.Resume();
+                        }
                     }
-                    else if (!PrintingDisabled && job.IsPaused && job.Submitter.Equals(Environment.UserName))
-                    {
-                        form.MinimiseToTray();
 
-                        job.Resume();
-                        Console.Write("Resumed job " + job.JobIdentifier);
-                        job.Refresh();
-                    }
+                    job.Refresh();
+                }
+
+                queue.Commit();
+            }
+        }
+
+        public void ResumeLatestJob()
+        {
+            PrintQueue queue;
+
+            foreach (string queueName in queuesToBlock)
+            {
+                queue = new PrintQueue(printServer, queueName);
+                queue.Refresh();
+
+                PrintSystemJobInfo latestJob = getLatestJob(queue);
+
+                if (latestJob != null)
+                {
+                    latestJob.Resume();
+                    latestJob.Refresh()
+                    queue.Commit();
                 }
             }
+        }
+
+        private PrintSystemJobInfo getLatestJob(PrintQueue queue)
+        {
+            DateTime latestJobTime = DateTime.Now;
+            PrintSystemJobInfo latestJob = null;
+
+            foreach (var job in queue.GetPrintJobInfoCollection())
+            {
+                job.Refresh();
+
+                var time = job.TimeJobSubmitted;
+
+                if (time < latestJobTime)
+                {
+                    latestJobTime = time;
+                    latestJob = job;
+                }
+            }
+
+            return latestJob;
         }
 
         public void ResumeJobs()
@@ -105,10 +146,10 @@ namespace PrintLocker
 
             foreach (string queueName in queuesToBlock)
             {
-                queue = new PrintQueue(server, queueName);
+                queue = new PrintQueue(printServer, queueName);
                 queue.Refresh();
 
-                foreach (PrintSystemJobInfo job in queue.GetPrintJobInfoCollection())
+                foreach (var job in queue.GetPrintJobInfoCollection())
                 {
                     job.Refresh();
                     job.Resume();
