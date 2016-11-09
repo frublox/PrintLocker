@@ -101,59 +101,42 @@ namespace PrintLocker
 
         public void ResumeLatestJob()
         {
-            PrintQueue queue;
+            PrintSystemJobInfo latestJob = getLatestJob();
 
-            foreach (string queueName in queuesToBlock)
-            {
-                queue = new PrintQueue(printServer, queueName);
-                queue.Refresh();
-
-                PrintSystemJobInfo latestJob = getLatestJob(queue);
-
-                if (latestJob != null)
-                {
-                    latestJob.Resume();
-                    latestJob.Refresh();
-                    queue.Commit();
-                }
-            }
+            latestJob.Resume();
+            latestJob.Refresh();
         }
 
         public void DeleteLatestJob()
         {
+            PrintSystemJobInfo latestJob = getLatestJob();
+
+            latestJob.Cancel();
+            latestJob.Refresh();
+        }
+
+        private PrintSystemJobInfo getLatestJob()
+        {
             PrintQueue queue;
+            DateTime latestJobTime = DateTime.Now;
+            PrintSystemJobInfo latestJob = null;
 
             foreach (string queueName in queuesToBlock)
             {
                 queue = new PrintQueue(printServer, queueName);
                 queue.Refresh();
 
-                PrintSystemJobInfo latestJob = getLatestJob(queue);
-
-                if (latestJob != null)
+                foreach (var job in queue.GetPrintJobInfoCollection())
                 {
-                    latestJob.Cancel();
-                    latestJob.Refresh();
-                    queue.Commit();
-                }
-            }
-        }
+                    job.Refresh();
 
-        private PrintSystemJobInfo getLatestJob(PrintQueue queue)
-        {
-            DateTime latestJobTime = DateTime.Now;
-            PrintSystemJobInfo latestJob = null;
+                    var time = job.TimeJobSubmitted;
 
-            foreach (var job in queue.GetPrintJobInfoCollection())
-            {
-                job.Refresh();
-
-                var time = job.TimeJobSubmitted;
-
-                if (time < latestJobTime)
-                {
-                    latestJobTime = time;
-                    latestJob = job;
+                    if (time < latestJobTime)
+                    {
+                        latestJobTime = time;
+                        latestJob = job;
+                    }
                 }
             }
 
