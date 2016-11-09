@@ -14,6 +14,7 @@ namespace PrintLocker
         {
             InitializeComponent();
 
+            Icon = new System.Drawing.Icon(Prefs.AppDir + "printer.ico");
             notifyIcon.Icon = Icon;
 
             printLocker = new PrintLocker(passwordHash, queuesToBlock, this);
