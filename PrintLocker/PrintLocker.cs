@@ -113,7 +113,7 @@ namespace PrintLocker
                 if (latestJob != null)
                 {
                     latestJob.Resume();
-                    latestJob.Refresh()
+                    latestJob.Refresh();
                     queue.Commit();
                 }
             }
