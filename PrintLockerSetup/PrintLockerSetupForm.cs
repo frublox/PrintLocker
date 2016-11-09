@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Security.Cryptography;
 using System.IO;
 using System.Printing;
+using Microsoft.Win32;
 
 namespace PrintLockerSetup
 {
@@ -23,7 +24,15 @@ namespace PrintLockerSetup
 
             checkedListBoxQueues.Items.AddRange(getPrinterQueueNames());
             checkedListBoxQueues.CheckOnClick = true;
-            
+
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(
+                "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+
+            if (key.GetValue("PrintLocker") != null)
+            {
+                checkBoxStartup.Checked = true;
+            }
+
             readConfig();
         }
 
@@ -102,7 +111,6 @@ namespace PrintLockerSetup
             inputPassword.Text = "";
         }
 
-
         private void clearLog()
         {
             try
@@ -123,6 +131,27 @@ namespace PrintLockerSetup
 
             labelStatus.ForeColor = Color.Green;
             labelStatus.Text = "Successfully cleared the log file.";
+        }
+
+        private void toggleStartup()
+        {
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(
+                "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+
+            if (checkBoxStartup.Checked)
+            {
+                key.SetValue("PrintLocker", Prefs.AppDir + "PrintLocker.exe");
+
+                labelStatus.ForeColor = Color.Green;
+                labelStatus.Text = "PrintLocker is now set to run on startup.";
+            }
+            else
+            {
+                key.DeleteValue("PrintLocker", false);
+
+                labelStatus.ForeColor = Color.Green;
+                labelStatus.Text = "PrintLocker will no longer run on startup.";
+            }
         }
 
         private void buttonSetPassLoc_Click(object sender, EventArgs e)
@@ -151,6 +180,11 @@ namespace PrintLockerSetup
         private void buttonSaveConfig_Click(object sender, EventArgs e)
         {
             saveConfig();
+        }
+
+        private void checkBoxStartup_Click(object sender, EventArgs e)
+        {
+            toggleStartup();
         }
     }
 }
