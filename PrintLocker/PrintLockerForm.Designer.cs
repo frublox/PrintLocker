@@ -29,31 +29,29 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PrintLockerForm));
             this.inputPassword = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.buttonSubmit = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
-            this.labelPrintingStatus = new System.Windows.Forms.Label();
-            this.labelStatus = new System.Windows.Forms.Label();
-            this.buttonLock = new System.Windows.Forms.Button();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.buttonCancel = new System.Windows.Forms.Button();
+            this.labelNotification = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // inputPassword
             // 
-            this.inputPassword.Location = new System.Drawing.Point(76, 32);
+            this.inputPassword.Location = new System.Drawing.Point(74, 33);
             this.inputPassword.Name = "inputPassword";
             this.inputPassword.PasswordChar = '*';
-            this.inputPassword.Size = new System.Drawing.Size(253, 20);
+            this.inputPassword.Size = new System.Drawing.Size(256, 20);
             this.inputPassword.TabIndex = 0;
             this.inputPassword.UseSystemPasswordChar = true;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(14, 35);
+            this.label1.Location = new System.Drawing.Point(12, 36);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(56, 13);
             this.label1.TabIndex = 1;
@@ -62,60 +60,21 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(14, 9);
+            this.label2.Location = new System.Drawing.Point(58, 9);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(311, 13);
+            this.label2.Size = new System.Drawing.Size(300, 13);
             this.label2.TabIndex = 2;
-            this.label2.Text = "You must enter a password to enable printing from this computer.";
+            this.label2.Text = "You must enter a password in order to print from this computer.";
             // 
             // buttonSubmit
             // 
-            this.buttonSubmit.Location = new System.Drawing.Point(335, 32);
+            this.buttonSubmit.Location = new System.Drawing.Point(336, 31);
             this.buttonSubmit.Name = "buttonSubmit";
-            this.buttonSubmit.Size = new System.Drawing.Size(80, 21);
+            this.buttonSubmit.Size = new System.Drawing.Size(80, 23);
             this.buttonSubmit.TabIndex = 3;
             this.buttonSubmit.Text = "Submit";
             this.buttonSubmit.UseVisualStyleBackColor = true;
             this.buttonSubmit.Click += new System.EventHandler(this.buttonSubmit_Click);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(14, 87);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(76, 13);
-            this.label3.TabIndex = 4;
-            this.label3.Text = "Printing status:";
-            // 
-            // labelPrintingStatus
-            // 
-            this.labelPrintingStatus.AutoSize = true;
-            this.labelPrintingStatus.ForeColor = System.Drawing.Color.Red;
-            this.labelPrintingStatus.Location = new System.Drawing.Point(96, 87);
-            this.labelPrintingStatus.Name = "labelPrintingStatus";
-            this.labelPrintingStatus.Size = new System.Drawing.Size(48, 13);
-            this.labelPrintingStatus.TabIndex = 5;
-            this.labelPrintingStatus.Text = "Disabled";
-            // 
-            // labelStatus
-            // 
-            this.labelStatus.AutoSize = true;
-            this.labelStatus.ForeColor = System.Drawing.Color.Red;
-            this.labelStatus.Location = new System.Drawing.Point(14, 61);
-            this.labelStatus.Name = "labelStatus";
-            this.labelStatus.Size = new System.Drawing.Size(0, 13);
-            this.labelStatus.TabIndex = 6;
-            // 
-            // buttonLock
-            // 
-            this.buttonLock.Enabled = false;
-            this.buttonLock.Location = new System.Drawing.Point(249, 82);
-            this.buttonLock.Name = "buttonLock";
-            this.buttonLock.Size = new System.Drawing.Size(80, 23);
-            this.buttonLock.TabIndex = 7;
-            this.buttonLock.Text = "Lock Printing";
-            this.buttonLock.UseVisualStyleBackColor = true;
-            this.buttonLock.Click += new System.EventHandler(this.buttonLock_Click);
             // 
             // notifyIcon
             // 
@@ -130,7 +89,7 @@
             // 
             // buttonCancel
             // 
-            this.buttonCancel.Location = new System.Drawing.Point(335, 82);
+            this.buttonCancel.Location = new System.Drawing.Point(336, 60);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(80, 23);
             this.buttonCancel.TabIndex = 8;
@@ -138,24 +97,30 @@
             this.buttonCancel.UseVisualStyleBackColor = true;
             this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
             // 
+            // labelNotification
+            // 
+            this.labelNotification.AutoSize = true;
+            this.labelNotification.ForeColor = System.Drawing.Color.Red;
+            this.labelNotification.Location = new System.Drawing.Point(12, 65);
+            this.labelNotification.Name = "labelNotification";
+            this.labelNotification.Size = new System.Drawing.Size(0, 13);
+            this.labelNotification.TabIndex = 9;
+            // 
             // PrintLockerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(427, 109);
+            this.ClientSize = new System.Drawing.Size(424, 91);
+            this.Controls.Add(this.labelNotification);
             this.Controls.Add(this.buttonCancel);
-            this.Controls.Add(this.buttonLock);
-            this.Controls.Add(this.labelStatus);
             this.Controls.Add(this.buttonSubmit);
-            this.Controls.Add(this.labelPrintingStatus);
-            this.Controls.Add(this.label3);
             this.Controls.Add(this.inputPassword);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label2);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "PrintLockerForm";
-            this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Print Locker";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.PrintLockerForm_FormClosed);
@@ -171,12 +136,9 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button buttonSubmit;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label labelPrintingStatus;
-        private System.Windows.Forms.Label labelStatus;
-        private System.Windows.Forms.Button buttonLock;
         private System.Windows.Forms.NotifyIcon notifyIcon;
         private System.Windows.Forms.Button buttonCancel;
+        private System.Windows.Forms.Label labelNotification;
     }
 }
 

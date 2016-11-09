@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace PrintLocker
 {
@@ -14,59 +14,25 @@ namespace PrintLocker
         {
             InitializeComponent();
 
-            notifyIcon.Icon = SystemIcons.Application;
+            notifyIcon.Icon = Icon;
 
             printLocker = new PrintLocker(passwordHash, queuesToBlock, this);
+
+            MinimiseToTray();
         }
 
-        private void disableInput()
+        private void allowPrintJob()
         {
-            buttonSubmit.Enabled = false;
-            inputPassword.Enabled = false;
-            buttonLock.Enabled = true;
-        }
+            MinimiseToTray();
 
-        private void enableInput()
-        {
-            inputPassword.Enabled = true;
-            buttonSubmit.Enabled = true;
-            buttonLock.Enabled = false;
-        }
-
-        private void enablePrinting()
-        {
             printLocker.PrintingDisabled = false;
-            printLocker.ResumeJobs();
-
-            labelStatus.ForeColor = Color.Green;
-            labelStatus.Text = "Successfully enabled printing.";
-
-            labelPrintingStatus.ForeColor = Color.Green;
-            labelPrintingStatus.Text = "Enabled";
+            printLocker.ResumeLatestJob();
 
             inputPassword.Text = "";
 
-            disableInput();
-        }
+            Thread.Sleep(500);
 
-        private void disablePrinting()
-        {
             printLocker.PrintingDisabled = true;
-
-            labelStatus.ForeColor = Color.Red;
-
-            labelPrintingStatus.ForeColor = Color.Red;
-            labelPrintingStatus.Text = "Disabled";
-
-            inputPassword.Text = "";
-
-            enableInput();
-        }
-
-        private void lockPrinting()
-        {
-            disablePrinting();
-            labelStatus.Text = "Printing has been re-locked.";
         }
 
         public void ShowWindow()
@@ -85,12 +51,12 @@ namespace PrintLocker
         {
             if (printLocker.CheckPassword(inputPassword.Text))
             {
-                enablePrinting();
+                allowPrintJob();
+                labelNotification.Text = "";
             }
             else
             {
-                disablePrinting();
-                labelStatus.Text = "Incorrect password.";
+                labelNotification.Text = "Incorrect password, please try again.";
             }
         }
 
@@ -98,9 +64,6 @@ namespace PrintLocker
         {
             WindowState = FormWindowState.Minimized;
             Hide();
-            notifyIcon.BalloonTipTitle = "Print Locker";
-            notifyIcon.BalloonTipText = "Print Locker is now minimised to the system tray, but will continue to run in the background.";
-            notifyIcon.ShowBalloonTip(3000);
         }
 
         public void RestoreFromTray()
@@ -117,14 +80,20 @@ namespace PrintLocker
             }
         }
 
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+
+            if (e.CloseReason != CloseReason.WindowsShutDown)
+            {
+                e.Cancel = true;
+                MinimiseToTray();
+            }
+        }
+
         private void buttonSubmit_Click(object sender, EventArgs e)
         {
             checkPassword();
-        }
-
-        private void buttonLock_Click(object sender, EventArgs e)
-        {
-            lockPrinting();
         }
 
         private void Form1_Resize(object sender, EventArgs e)
