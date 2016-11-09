@@ -113,6 +113,7 @@ namespace PrintLocker
         private void buttonCancel_Click(object sender, EventArgs e)
         {
             MinimiseToTray();
+            printLocker.DeleteLatestJob();
         }
 
         private void notifyIcon_BalloonTipClicked(object sender, EventArgs e)

@@ -119,6 +119,26 @@ namespace PrintLocker
             }
         }
 
+        public void DeleteLatestJob()
+        {
+            PrintQueue queue;
+
+            foreach (string queueName in queuesToBlock)
+            {
+                queue = new PrintQueue(printServer, queueName);
+                queue.Refresh();
+
+                PrintSystemJobInfo latestJob = getLatestJob(queue);
+
+                if (latestJob != null)
+                {
+                    latestJob.Cancel();
+                    latestJob.Refresh();
+                    queue.Commit();
+                }
+            }
+        }
+
         private PrintSystemJobInfo getLatestJob(PrintQueue queue)
         {
             DateTime latestJobTime = DateTime.Now;
