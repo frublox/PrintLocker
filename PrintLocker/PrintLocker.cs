@@ -103,18 +103,28 @@ namespace PrintLocker
         {
             PrintSystemJobInfo latestJob = getLatestJob();
 
-            latestJob.Resume();
-            latestJob.Refresh();
+            if (latestJob != null)
+            {
+                latestJob.Resume();
+                latestJob.Refresh();
+            }
         }
 
         public void DeleteLatestJob()
         {
             PrintSystemJobInfo latestJob = getLatestJob();
 
-            latestJob.Cancel();
-            latestJob.Refresh();
+            if (latestJob != null)
+            {
+                latestJob.Cancel();
+                latestJob.Refresh();
+            }
         }
 
+        /// <summary>
+        /// Gets the most recently submitted job
+        /// </summary>
+        /// <returns>The most recent job, or null if there are no jobs</returns>
         private PrintSystemJobInfo getLatestJob()
         {
             PrintQueue queue;
