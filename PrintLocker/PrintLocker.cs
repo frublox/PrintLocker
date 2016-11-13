@@ -32,6 +32,11 @@ namespace PrintLocker
             jobMonitor.Start();
         }
 
+        /// <summary>
+        /// Compares the input password's hash to the configured password's hash
+        /// </summary>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public bool CheckPassword(string password)
         {
             byte[] bytes = Encoding.ASCII.GetBytes(password);
@@ -146,24 +151,6 @@ namespace PrintLocker
             }
 
             return latestJob;
-        }
-
-        public void ResumeJobs()
-        {
-            PrintQueue queue;
-
-            foreach (string queueName in queuesToBlock)
-            {
-                queue = new PrintQueue(printServer, queueName);
-                queue.Refresh();
-
-                foreach (var job in queue.GetPrintJobInfoCollection())
-                {
-                    job.Refresh();
-                    job.Resume();
-                    job.Refresh();
-                }
-            }
         }
 
         private void logJob(int jobId, int numPages, DateTime timestamp, string user)
