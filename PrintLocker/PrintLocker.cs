@@ -14,7 +14,6 @@ namespace PrintLocker
         public bool PrintingDisabled = true;
 
         private PrintLockerForm form;
-        private LocalPrintServer printServer;
 
         private List<string> queuesToBlock;
         private byte[] passwordHash;
@@ -35,26 +34,15 @@ namespace PrintLocker
 
         public bool CheckPassword(string password)
         {
-            byte[] inputPasswordHash = computeHash(password);
-
-            return passwordHash.SequenceEqual(inputPasswordHash);
-        }
-
-        /// <summary>
-        /// Computes the SHA256 hash of the given string.
-        /// </summary>
-        /// <param name="password"></param>
-        /// <returns></returns>
-        private byte[] computeHash(string password)
-        {
             byte[] bytes = Encoding.ASCII.GetBytes(password);
+            byte[] hash = mySHA256.ComputeHash(bytes);
 
-            return mySHA256.ComputeHash(bytes);
+            return passwordHash.SequenceEqual(hash);
         }
 
         private void monitorQueues()
         {
-            printServer = new LocalPrintServer();
+            LocalPrintServer printServer = new LocalPrintServer();
 
             while (true)
             {
@@ -75,7 +63,6 @@ namespace PrintLocker
                 pauseQueue(queue);
             }
         }
-
 
         /// <summary>
         /// Pauses all of the current user's jobs in the queue, provided printing is disabled
@@ -100,6 +87,8 @@ namespace PrintLocker
                 {
                     job.Resume();
                 }
+
+                job.Commit();
             }
 
             queue.Commit();
