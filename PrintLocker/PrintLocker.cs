@@ -71,32 +71,38 @@ namespace PrintLocker
             foreach (string queueName in queuesToBlock)
             {
                 queue = new PrintQueue(server, queueName);
-                queue.Refresh();
 
-                foreach (PrintSystemJobInfo job in queue.GetPrintJobInfoCollection())
-                {
-                    job.Refresh();
-
-                    logJob(job.JobIdentifier, job.NumberOfPages, job.TimeJobSubmitted, job.Submitter);
-
-                    if (job.Submitter.Equals(Environment.UserName))
-                    {
-                        if (PrintingDisabled && !job.IsPaused)
-                        {
-                            job.Pause();
-                            form.RestoreFromTray();
-                        }
-                        else
-                        {
-                            job.Resume();
-                        }
-                    }
-
-                    job.Refresh();
-                }
-
-                queue.Commit();
+                pauseQueue(queue);
             }
+        }
+
+
+        /// <summary>
+        /// Pauses all of the current user's jobs in the queue, provided printing is disabled
+        /// </summary>
+        /// <param name="queue"></param>
+        private void pauseQueue(PrintQueue queue)
+        {
+            queue.Refresh();
+
+            foreach (PrintSystemJobInfo job in queue.GetPrintJobInfoCollection())
+            {
+                job.Refresh();
+
+                logJob(job.JobIdentifier, job.NumberOfPages, job.TimeJobSubmitted, job.Submitter);
+
+                if (PrintingDisabled && !job.IsPaused && job.Submitter.Equals(Environment.UserName))
+                {
+                    job.Pause();
+                    form.RestoreFromTray();
+                }
+                else
+                {
+                    job.Resume();
+                }
+            }
+
+            queue.Commit();
         }
 
         public void ResumeLatestJob()
