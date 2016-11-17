@@ -8,6 +8,7 @@ namespace PrintLocker
     public partial class PrintLockerForm : Form
     {
         private PrintLocker printLocker;
+
         delegate void Callback();
 
         public PrintLockerForm(byte[] passwordHash, List<string> queuesToBlock)
@@ -22,29 +23,18 @@ namespace PrintLocker
             MinimiseToTray();
         }
 
-        private void allowPrintJob()
-        {
-            MinimiseToTray();
-
-            printLocker.PrintingDisabled = false;
-            printLocker.ResumeLatestJob();
-
-            inputPassword.Text = "";
-
-            Thread.Sleep(500);
-
-            printLocker.PrintingDisabled = true;
-        }
-
-        public void ShowWindow()
+        private void showWindow()
         {
             if (InvokeRequired)
             {
+                Invoke(new Callback(() => TopMost = true));
                 Invoke(new Callback(Show));
+                Invoke(new Callback(Activate));
             }
             else
             {
                 Show();
+                Activate();
             }
         }
 
@@ -52,8 +42,11 @@ namespace PrintLocker
         {
             if (printLocker.CheckPassword(inputPassword.Text))
             {
-                allowPrintJob();
+                printLocker.AllowPrintJob();
+
+                inputPassword.Text = "";
                 labelNotification.Text = "";
+                MinimiseToTray();
             }
             else
             {
@@ -63,13 +56,22 @@ namespace PrintLocker
 
         public void MinimiseToTray()
         {
-            WindowState = FormWindowState.Minimized;
-            Hide();
+            if (InvokeRequired)
+            {
+                Invoke(new Callback(() => WindowState = FormWindowState.Minimized));
+                Invoke(new Callback(Hide));
+            }
+            else
+            {
+                WindowState = FormWindowState.Minimized;
+                Hide();
+            }
+            
         }
 
         public void RestoreFromTray()
         {
-            ShowWindow();
+            showWindow();
 
             if (InvokeRequired)
             {
@@ -113,17 +115,12 @@ namespace PrintLocker
         private void buttonCancel_Click(object sender, EventArgs e)
         {
             MinimiseToTray();
-            printLocker.DeleteLatestJob();
+            printLocker.DeleteLastJob();
         }
 
         private void notifyIcon_BalloonTipClicked(object sender, EventArgs e)
         {
             RestoreFromTray();
-        }
-
-        private void PrintLockerForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            printLocker.ResumeJobs();
         }
     }
 }
