@@ -31,6 +31,12 @@ namespace PrintLocker
         {
             this.form = form;
             this.passwordHash = passwordHash;
+
+            if (queueNamesToBlock.Count == 0)
+            {
+                queueNamesToBlock.Add(printServer.DefaultPrintQueue.FullName);
+            }
+
             this.queueNamesToBlock = queueNamesToBlock;
 
             Thread queueMonitor = new Thread(() => monitorQueues());
