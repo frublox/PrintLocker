@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.IO;
+using System.Threading;
 
 namespace PrintLocker
 {
@@ -18,6 +19,15 @@ namespace PrintLocker
 
             byte[] passwordHash = null;
             List<string> queuesToBlock = null;
+
+            if (fileMissingOrEmpty(Prefs.ConfigFilepath))
+            {
+                const string msg = "No printers have been configured to be blocked, so the default printer has been chosen. "
+                    + "This can be changed in the setup program.";
+                const string caption = "Missing Configuration";
+
+                MessageBox.Show(msg, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
             if (fileMissingOrEmpty(Prefs.HashLocationFilepath))
             {
@@ -45,17 +55,11 @@ namespace PrintLocker
 
                 MessageBox.Show(msg, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else if (fileMissingOrEmpty(Prefs.ConfigFilepath))
-            {
-                const string msg = "No printers have been configured to be blocked. Set at least one using the setup program.";
-                const string caption = "Missing Configuration";
-
-                MessageBox.Show(msg, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            } 
             else
             {
                 passwordHash = File.ReadAllBytes(Prefs.HashFilepath);
                 queuesToBlock = new List<string>(File.ReadAllLines(Prefs.ConfigFilepath));
+
                 Application.Run(new PrintLockerForm(passwordHash, queuesToBlock));
             }
         }
