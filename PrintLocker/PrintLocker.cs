@@ -11,25 +11,31 @@ namespace PrintLocker
 {
     class PrintLocker
     {
-        public bool PrintingDisabled = true;
+        private bool printingDisabled = true;
 
         private PrintLockerForm form;
 
-        private List<string> queuesToBlock;
-        private byte[] passwordHash;
+        private List<string> queueNamesToBlock;
+        private LocalPrintServer printServer = new LocalPrintServer();
 
-        private Thread jobMonitor;
+        private byte[] passwordHash;
         private SHA256 mySHA256 = SHA256.Create();
 
-        public PrintLocker(byte[] passwordHash, List<string> queuesToBlock, PrintLockerForm form)
+        /// <summary>
+        /// Spawns new thread that will begin monitoring all blocked printer queues
+        /// </summary>
+        /// <param name="passwordHash"></param>
+        /// <param name="queueNamesToBlock"></param>
+        /// <param name="form">A reference to the WinForm gui</param>
+        public PrintLocker(byte[] passwordHash, List<string> queueNamesToBlock, PrintLockerForm form)
         {
             this.form = form;
             this.passwordHash = passwordHash;
-            this.queuesToBlock = queuesToBlock;
+            this.queueNamesToBlock = queueNamesToBlock;
 
-            jobMonitor = new Thread(new ThreadStart(monitorQueues));
-            jobMonitor.IsBackground = true;
-            jobMonitor.Start();
+            Thread queueMonitor = new Thread(() => monitorQueues());
+            queueMonitor.IsBackground = true;
+            queueMonitor.Start();
         }
 
         /// <summary>
@@ -45,27 +51,35 @@ namespace PrintLocker
             return passwordHash.SequenceEqual(hash);
         }
 
-        private void monitorQueues()
+        /// <summary>
+        /// Temporarily allows the most recent print job to go through
+        /// </summary>
+        public void AllowPrintJob()
         {
-            LocalPrintServer printServer = new LocalPrintServer();
+            printingDisabled = false;
+            resumeLastJob();
 
-            while (true)
-            {
-                pauseJobs(printServer);
+            Thread.Sleep(500);
 
-                Thread.Sleep(100);
-            }
+            printingDisabled = true;
         }
 
-        private void pauseJobs(LocalPrintServer server)
+        private void monitorQueues()
         {
             PrintQueue queue;
 
-            foreach (string queueName in queuesToBlock)
+            while (true)
             {
-                queue = new PrintQueue(server, queueName);
+                if (printingDisabled)
+                {
+                    foreach (string queueName in queueNamesToBlock)
+                    {
+                        queue = new PrintQueue(printServer, queueName);
+                        pauseAllJobs(queue);
+                    }
+                }
 
-                pauseQueue(queue);
+                Thread.Sleep(500);
             }
         }
 
@@ -73,7 +87,7 @@ namespace PrintLocker
         /// Pauses all of the current user's jobs in the queue, provided printing is disabled
         /// </summary>
         /// <param name="queue"></param>
-        private void pauseQueue(PrintQueue queue)
+        private void pauseAllJobs(PrintQueue queue)
         {
             queue.Refresh();
 
@@ -82,42 +96,53 @@ namespace PrintLocker
                 job.Refresh();
 
                 logJob(job.JobIdentifier, job.NumberOfPages, job.TimeJobSubmitted, job.Submitter);
-
-                if (PrintingDisabled && !job.IsPaused && job.Submitter.Equals(Environment.UserName))
-                {
-                    job.Pause();
-                    form.RestoreFromTray();
-                }
-                else
-                {
-                    job.Resume();
-                }
-
-                job.Commit();
+                pauseJob(job);
             }
 
             queue.Commit();
         }
 
-        public void ResumeLatestJob()
+        private void pauseJob(PrintSystemJobInfo job)
         {
-            PrintSystemJobInfo latestJob = getLatestJob();
-
-            if (latestJob != null)
+            if (!job.IsPaused && job.Submitter.Equals(Environment.UserName))
             {
-                latestJob.Resume();
-                latestJob.Refresh();
+                job.Pause();
+                form.RestoreFromTray();
             }
         }
 
-        public void DeleteLatestJob()
+        private void resumeAllJobs(PrintQueue queue)
         {
-            PrintSystemJobInfo latestJob = getLatestJob();
+            queue.Refresh();
 
-            if (latestJob != null)
+            foreach (var job in queue.GetPrintJobInfoCollection())
             {
-                latestJob.Cancel();
-                latestJob.Refresh();
+                job.Refresh();
+                job.Resume();
+            }
+
+            queue.Commit();
+        }
+
+        private void resumeLastJob()
+        {
+            PrintSystemJobInfo lastJob = getLastJob();
+
+            if (lastJob != null)
+            {
+                lastJob.Resume();
+                lastJob.Refresh();
+            }
+        }
+
+        public void DeleteLastJob()
+        {
+            PrintSystemJobInfo lastJob = getLastJob();
+
+            if (lastJob != null)
+            {
+                lastJob.Cancel();
+                lastJob.Refresh();
             }
         }
 
@@ -125,13 +150,13 @@ namespace PrintLocker
         /// Gets the most recently submitted job
         /// </summary>
         /// <returns>The most recent job, or null if there are no jobs</returns>
-        private PrintSystemJobInfo getLatestJob()
+        private PrintSystemJobInfo getLastJob()
         {
-            PrintQueue queue;
             DateTime latestJobTime = DateTime.Now;
             PrintSystemJobInfo latestJob = null;
 
-            foreach (string queueName in queuesToBlock)
+            PrintQueue queue;
+            foreach (string queueName in queueNamesToBlock)
             {
                 queue = new PrintQueue(printServer, queueName);
                 queue.Refresh();
